@@ -35,7 +35,7 @@ If you have fluentd installed, you will need to use it's embedded ruby installat
       ssl_verify false
 
       path logs/
-      buffer_path /var/log/fluent/rackspace-cloud-files
+      buffer_path /var/log/td-agent/rackspace-cloud-files
 
       time_slice_format %Y%m%d-%H
       time_slice_wait 10m

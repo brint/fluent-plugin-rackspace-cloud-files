@@ -1,0 +1,119 @@
+= Rackspace Cloud Files output plugin for Fluent event collector
+
+== Overview
+
+This has only been tested on fluentd version 0.12.12.
+
+*rackspace-cloud-files* output plugin buffers event logs in local file and upload it to Rackspace Cloud Files periodically.
+
+This plugin splits files exactly by using the time of event logs (not the time when the logs are received). For example, a log '2011-01-02 message B' is reached, and then another log '2011-01-03 message B' is reached in this order, the former one is stored in "20110102.gz" file, and latter one in "20110103.gz" file.
+
+
+== Installation
+
+Simply use RubyGems:
+
+     gem install fluent-plugin-rackspace-cloud-files
+
+If you have fluentd installed, you will need to use it's embedded ruby installation to complete the install:
+
+     /usr/sbin/td-agent-gem install fluent-plugin-rackspace-cloud-files
+
+
+== Configuration
+
+    <match pattern>
+      type rackspace_cloud_files
+
+      rackspace_auth_url, :string, :default => Fog::Rackspace::US_AUTH_ENDPOINT
+      rackspace_username rax-user
+      rackspace_api_key apikey
+      rackspace_container container_name
+      rackspace_region dfw
+
+      object_key_format %{path}%{time_slice}_%{index}.%{file_extension}
+      ssl_verify false
+
+      path logs/
+      buffer_path /var/log/fluent/rackspace-cloud-files
+
+      time_slice_format %Y%m%d-%H
+      time_slice_wait 10m
+      utc
+    </match>
+
+[rackspace_auth_url] Authentication URL. Defaults to the Rackspace US endpoint.
+
+[rackspace_username] Authentication User Name.
+
+[rackspace_api_key] Authentication API Key.
+
+[rackspace_container] Container name.
+
+[object_key_format] The format of Rackspace Cloud Files object keys. You can use several built-in variables:
+
+- %{path}
+- %{time_slice}
+- %{index}
+- %{file_extension}
+
+to decide keys dynamically.
+
+%{path} is exactly the value of *path* configured in the configuration file. E.g., "logs/" in the example configuration above.
+%{time_slice} is the time-slice in text that are formatted with *time_slice_format*.
+%{index} is the sequential number starts from 0, increments when multiple files are uploaded to S3 in the same time slice.
+%{file_extention} is always "gz" for now.
+
+The default format is "%{path}%{time_slice}_%{index}.%{file_extension}".
+
+For instance, using the example configuration above, actual object keys on Rackspace Cloud Files will be something like:
+
+    "logs/20130111-22_0.gz"
+    "logs/20130111-23_0.gz"
+    "logs/20130111-23_1.gz"
+    "logs/20130112-00_0.gz"
+
+With the configuration:
+
+    object_key_format %{path}/events/ts=%{time_slice}/events_%{index}.%{file_extension}
+    path log
+    time_slice_format %Y%m%d-%H
+
+You get:
+
+    "log/events/ts=20130111-22/events_0.gz"
+    "log/events/ts=20130111-23/events_0.gz"
+    "log/events/ts=20130111-23/events_1.gz"
+    "log/events/ts=20130112-00/events_0.gz"
+
+The {fluent-mixin-config-placeholders}[https://github.com/tagomoris/fluent-mixin-config-placeholders] mixin is also incorporated, so additional variables such as %{hostname}, %{uuid}, etc. can be used in the s3_object_key_format. This could prove useful in preventing filename conflicts when writing from multiple servers.
+
+    object_key_format %{path}/events/ts=%{time_slice}/events_%{index}-%{hostname}.%{file_extension}
+
+[store_as] archive format on Rackspace Cloud Files. You can use serveral format:
+
+- gzip (default)
+- json
+- text
+- lzo (Need lzop command)
+
+[auto_create_container] Create Cloud Files container if it does not exists. Default is true.
+
+[path] path prefix of the files on Cloud Files. Default is "" (no prefix).
+
+[buffer_path (required)] path prefix of the files to buffer logs.
+
+[time_slice_format] Format of the time used as the file name. Default is '%Y%m%d'. Use '%Y%m%d%H' to split files hourly.
+
+[time_slice_wait] The time to wait old logs. Default is 10 minutes. Specify larger value if old logs may reache.
+
+[utc] Use UTC instead of local time.
+
+
+== Copyright
+
+Copyright:: Copyright (c) 2015 Brint O'Hearn.
+
+This software is based on fluent-plugin-swift ( https://github.com/yuuzi41/fluent-plugin-swift ), written by Yuji Hagiwara, licensed by Apache License, Version 2.0.
+
+License::   Apache License, Version 2.0

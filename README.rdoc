@@ -25,7 +25,7 @@ If you have fluentd installed, you will need to use it's embedded ruby installat
     <match pattern>
       type rackspace_cloud_files
 
-      rackspace_auth_url, :string, :default => Fog::Rackspace::US_AUTH_ENDPOINT
+      rackspace_auth_url https://identity.api.rackspacecloud.com/v2.0
       rackspace_username rax-user
       rackspace_api_key apikey
       rackspace_container container_name

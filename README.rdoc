@@ -2,6 +2,8 @@
 
 == Overview
 
+{<img src="https://badge.fury.io/rb/fluent-plugin-rackspace-cloud-files.svg" alt="Gem Version" />}[http://badge.fury.io/rb/fluent-plugin-rackspace-cloud-files]
+
 This has only been tested on fluentd version 0.12.12.
 
 *rackspace-cloud-files* output plugin buffers event logs in local file and upload it to Rackspace Cloud Files periodically.

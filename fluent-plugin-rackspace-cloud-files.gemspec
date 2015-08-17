@@ -7,7 +7,7 @@ Gem::Specification.new do |gem|
   gem.homepage    = "https://github.com/brint/fluent-plugin-rackspace-cloud-files"
   gem.summary     = gem.description
   gem.version     = File.read("VERSION").strip
-  gem.authors     = ["brint"]
+  gem.authors     = ["Brint O'Hearn"]
   gem.email       = "brintly@gmail.com"
   gem.license     = "Apache License 2.0"
   gem.has_rdoc    = false

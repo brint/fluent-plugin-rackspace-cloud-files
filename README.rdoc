@@ -97,7 +97,6 @@ The {fluent-mixin-config-placeholders}[https://github.com/tagomoris/fluent-mixin
 - gzip (default)
 - json
 - text
-- lzo (Need lzop command)
 
 [auto_create_container] Create Cloud Files container if it does not exists. Default is true.
 

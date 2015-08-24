@@ -55,13 +55,6 @@ module Fluent
 
       @ext, @mime_type = case @store_as
         when 'gzip' then ['gz', 'application/x-gzip']
-        when 'lzo' then
-          begin
-            Open3.capture3('lzop -V')
-          rescue Errno::ENOENT
-            raise ConfigError, "'lzop' utility must be in PATH for LZO compression"
-          end
-          ['lzo', 'application/x-lzop']
         when 'json' then ['json', 'application/json']
         else ['txt', 'text/plain']
       end
@@ -136,13 +129,6 @@ module Fluent
           w = Zlib::GzipWriter.new(tmp)
           chunk.write_to(w)
           w.close
-        elsif @store_as == "lzo"
-          w = Tempfile.new("chunk-tmp")
-          chunk.write_to(w)
-          w.close
-          tmp.close
-          # We don't check the return code because we can't recover lzop failure.
-          system "lzop -qf1 -o #{tmp.path} #{w.path}"
         else
           chunk.write_to(tmp)
           tmp.close

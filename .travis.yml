@@ -1,0 +1,8 @@
+sudo: false  # Builds in containers
+language: ruby
+rvm:
+  - 2.1.5  # Version of Ruby that ships with fluentd
+  - 2.2.3
+script:
+  # - bundle exec rake style  # Not currently passing style checks
+  - bundle exec rake build

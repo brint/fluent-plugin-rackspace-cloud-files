@@ -133,7 +133,7 @@ module Fluent #:nodoc: all
           @storage.put_object(@rackspace_container, swift_path, file,
                               content_type: @mime_type)
         end
-        $log.info 'Put Log to Rackspace Cloud Files. container='\
+        log.info 'Put Log to Rackspace Cloud Files. container='\
                   "#{@rackspace_container} object=#{swift_path}"
       ensure
         tmp.close(true) rescue nil
@@ -148,7 +148,7 @@ module Fluent #:nodoc: all
       @storage.get_container(@rackspace_container)
     rescue Fog::Storage::Rackspace::NotFound
       if @auto_create_container
-        $log.info 'Creating container #{@rackspace_container} in region '\
+        log.info 'Creating container #{@rackspace_container} in region '\
                   "#{@rackspace_region}"
         @storage.put_container(@rackspace_container)
       else

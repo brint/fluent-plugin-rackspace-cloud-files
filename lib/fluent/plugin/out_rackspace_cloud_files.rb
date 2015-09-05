@@ -23,13 +23,15 @@ module Fluent
     include SetTimeKeyMixin
     config_set_default :include_time_key, false
 
-    config_param :rackspace_auth_url, :string, default: 'https://identity.api.rackspacecloud.com/v2.0'
+    config_param :rackspace_auth_url, :string,
+                 default: 'https://identity.api.rackspacecloud.com/v2.0'
     config_param :rackspace_username, :string
     config_param :rackspace_api_key, :string
     config_param :rackspace_container, :string
     config_param :rackspace_region, :string
 
-    config_param :object_key_format, :string, default: "%{path}%{time_slice}_%{index}.%{file_extension}"
+    config_param :object_key_format, :string,
+                 default: "%{path}%{time_slice}_%{index}.%{file_extension}"
     config_param :store_as, :string, default: 'gzip'
     config_param :auto_create_container, :bool, default: true
     config_param :check_apikey_on_start, :bool, default: true
@@ -91,7 +93,8 @@ module Fluent
         time_str = @timef.format(time)
       end
 
-      # copied from each mixin because current TimeSlicedOutput can't support mixins.
+      # copied from each mixin because current TimeSlicedOutput can't support
+      # mixins.
       if @include_tag_key
         record[@tag_key] = tag
       end
@@ -134,9 +137,11 @@ module Fluent
           tmp.close
         end
         File.open(tmp.path) do |file|
-          @storage.put_object(@rackspace_container, swift_path, file, {content_type: @mime_type})
+          @storage.put_object(@rackspace_container, swift_path, file,
+                              {content_type: @mime_type})
         end
-        $log.info "Put Log to Rackspace Cloud Files. container=#{@rackspace_container} object=#{swift_path}"
+        $log.info 'Put Log to Rackspace Cloud Files. container='\
+                  "#{@rackspace_container} object=#{swift_path}"
       ensure
         tmp.close(true) rescue nil
         w.close rescue nil
@@ -151,10 +156,12 @@ module Fluent
         @storage.get_container(@rackspace_container)
       rescue Fog::Storage::Rackspace::NotFound
         if @auto_create_container
-          $log.info "Creating container #{@rackspace_container} in region #{@rackspace_region}"
+          $log.info 'Creating container #{@rackspace_container} in region '\
+                    "#{@rackspace_region}"
           @storage.put_container(@rackspace_container)
         else
-          raise "The specified container does not exist: container = #{rackspace_container}"
+          raise 'The specified container does not exist: container = '\
+                "#{rackspace_container}"
         end
       end
     end

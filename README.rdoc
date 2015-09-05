@@ -2,6 +2,7 @@
 
 == Overview
 
+{<img src="https://travis-ci.org/brint/fluent-plugin-rackspace-cloud-files.svg" alt="Build Status" />}[https://travis-ci.org/brint/fluent-plugin-rackspace-cloud-files]
 {<img src="https://badge.fury.io/rb/fluent-plugin-rackspace-cloud-files.svg" alt="Gem Version" />}[http://badge.fury.io/rb/fluent-plugin-rackspace-cloud-files]
 
 This has only been tested on fluentd version 0.12.12.

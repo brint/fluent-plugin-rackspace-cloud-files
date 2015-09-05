@@ -99,6 +99,7 @@ module Fluent #:nodoc: all
 
     def write(chunk)
       i = 0
+      previous_path = nil
 
       begin
         path = @path_slicer.call(@path)
@@ -111,7 +112,12 @@ module Fluent #:nodoc: all
         swift_path = @object_key_format.gsub(%r(%{[^}]+})) do |expr|
           values_for_swift_object_key[expr[2...expr.size - 1]]
         end
+        if (i > 0) && (swift_path == previous_path)
+          fail 'duplicated path is generated. use %{index} in '\
+          "object_key_format: path = #{swift_path}"
+        end
         i += 1
+        previous_path = swift_path
       end while check_object_exists(@rackspace_container, swift_path)
 
       tmp = Tempfile.new('rackspace-cloud-files-')

@@ -1,4 +1,4 @@
-module Fluent
+module Fluent #:nodoc: all
   require 'fluent/mixin/config_placeholders'
 
   class RackspaceCloudFilesOutput < Fluent::TimeSlicedOutput
@@ -113,9 +113,9 @@ module Fluent
           'file_extension' => @ext,
           'index' => i
         }
-        swift_path = @object_key_format.gsub(%r(%{[^}]+})) { |expr|
+        swift_path = @object_key_format.gsub(%r(%{[^}]+})) do |expr|
           values_for_swift_object_key[expr[2...expr.size - 1]]
-        }
+        end
         i += 1
       end while check_object_exists(@rackspace_container, swift_path)
 
@@ -145,27 +145,23 @@ module Fluent
     private
 
     def check_container
-      begin
-        @storage.get_container(@rackspace_container)
-      rescue Fog::Storage::Rackspace::NotFound
-        if @auto_create_container
-          $log.info 'Creating container #{@rackspace_container} in region '\
-                    "#{@rackspace_region}"
-          @storage.put_container(@rackspace_container)
-        else
-          raise 'The specified container does not exist: container = '\
-                "#{rackspace_container}"
-        end
+      @storage.get_container(@rackspace_container)
+    rescue Fog::Storage::Rackspace::NotFound
+      if @auto_create_container
+        $log.info 'Creating container #{@rackspace_container} in region '\
+                  "#{@rackspace_region}"
+        @storage.put_container(@rackspace_container)
+      else
+        raise 'The specified container does not exist: container = '\
+              "#{rackspace_container}"
       end
     end
 
     def check_object_exists(container, object)
-      begin
-        @storage.head_object(container, object)
-        return true
-      rescue Fog::Storage::Rackspace::NotFound
-        return false
-      end
+      @storage.head_object(container, object)
+      return true
+    rescue Fog::Storage::Rackspace::NotFound
+      return false
     end
   end
 end

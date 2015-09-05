@@ -1,8 +1,7 @@
 module Fluent
-
   require 'fluent/mixin/config_placeholders'
 
-  class RackspaceCloudFilesOutput < TimeSlicedOutput
+  class RackspaceCloudFilesOutput < Fluent::TimeSlicedOutput
     Fluent::Plugin.register_output('rackspace_cloud_files', self)
 
     def initialize
@@ -11,7 +10,6 @@ module Fluent
       require 'zlib'
       require 'time'
       require 'tempfile'
-      require 'open3'
     end
 
     config_param :path, :string, default: ''
@@ -56,21 +54,21 @@ module Fluent
       end
 
       @ext, @mime_type = case @store_as
-        when 'gzip' then ['gz', 'application/x-gzip']
-        when 'json' then ['json', 'application/json']
-        else ['txt', 'text/plain']
-      end
+                         when 'gzip' then ['gz', 'application/x-gzip']
+                         when 'json' then ['json', 'application/json']
+                         else ['txt', 'text/plain']
+                         end
 
       @timef = TimeFormatter.new(@time_format, @localtime)
 
       if @localtime
-        @path_slicer = Proc.new {|path|
+        @path_slicer = proc do |path|
           Time.now.strftime(path)
-        }
+        end
       else
-        @path_slicer = Proc.new {|path|
+        @path_slicer = proc do |path|
           Time.now.utc.strftime(path)
-        }
+        end
       end
     end
 
@@ -89,18 +87,13 @@ module Fluent
     end
 
     def format(tag, time, record)
-      if @include_time_key || !@format_json
-        time_str = @timef.format(time)
-      end
+      time_str = @timef.format(time) if @include_time_key || !@format_json
 
       # copied from each mixin because current TimeSlicedOutput can't support
       # mixins.
-      if @include_tag_key
-        record[@tag_key] = tag
-      end
-      if @include_time_key
-        record[@time_key] = time_str
-      end
+      record[@tag_key] = tag if @include_tag_key
+
+      record[@time_key] = time_str if @include_time_key
 
       if @format_json
         Yajl.dump(record) + "\n"
@@ -121,7 +114,7 @@ module Fluent
           'index' => i
         }
         swift_path = @object_key_format.gsub(%r(%{[^}]+})) { |expr|
-          values_for_swift_object_key[expr[2...expr.size-1]]
+          values_for_swift_object_key[expr[2...expr.size - 1]]
         }
         i += 1
       end while check_object_exists(@rackspace_container, swift_path)
@@ -169,11 +162,10 @@ module Fluent
     def check_object_exists(container, object)
       begin
         @storage.head_object(container, object)
+        return true
       rescue Fog::Storage::Rackspace::NotFound
         return false
       end
-      return true
     end
-
   end
 end

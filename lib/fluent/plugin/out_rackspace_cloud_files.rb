@@ -35,6 +35,7 @@ module Fluent #:nodoc: all
     config_param :check_apikey_on_start, :bool, default: true
     config_param :proxy_uri, :string, default: nil
     config_param :ssl_verify, :bool, default: true
+    config_param :format_json, :bool, default: false
 
     # attr_reader :container
 
@@ -46,12 +47,6 @@ module Fluent #:nodoc: all
 
     def configure(conf)
       super
-
-      if format_json = conf['format_json']
-        @format_json = true
-      else
-        @format_json = false
-      end
 
       @ext, @mime_type = case @store_as
                          when 'gzip' then ['gz', 'application/x-gzip']

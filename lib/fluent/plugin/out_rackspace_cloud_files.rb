@@ -14,7 +14,7 @@ module Fluent
       require 'open3'
     end
 
-    config_param :path, :string, :default => ""
+    config_param :path, :string, :default => ''
     config_param :time_format, :string, :default => nil
 
     include SetTagKeyMixin
@@ -23,14 +23,14 @@ module Fluent
     include SetTimeKeyMixin
     config_set_default :include_time_key, false
 
-    config_param :rackspace_auth_url, :string, :default => "https://identity.api.rackspacecloud.com/v2.0"
+    config_param :rackspace_auth_url, :string, :default => 'https://identity.api.rackspacecloud.com/v2.0'
     config_param :rackspace_username, :string
     config_param :rackspace_api_key, :string
     config_param :rackspace_container, :string
     config_param :rackspace_region, :string
 
     config_param :object_key_format, :string, :default => "%{path}%{time_slice}_%{index}.%{file_extension}"
-    config_param :store_as, :string, :default => "gzip"
+    config_param :store_as, :string, :default => 'gzip'
     config_param :auto_create_container, :bool, :default => true
     config_param :check_apikey_on_start, :bool, :default => true
     config_param :proxy_uri, :string, :default => nil
@@ -112,10 +112,10 @@ module Fluent
       begin
         path = @path_slicer.call(@path)
         values_for_swift_object_key = {
-          "path" => path,
-          "time_slice" => chunk.key,
-          "file_extension" => @ext,
-          "index" => i
+          'path' => path,
+          'time_slice' => chunk.key,
+          'file_extension' => @ext,
+          'index' => i
         }
         swift_path = @object_key_format.gsub(%r(%{[^}]+})) { |expr|
           values_for_swift_object_key[expr[2...expr.size-1]]
@@ -123,9 +123,9 @@ module Fluent
         i += 1
       end while check_object_exists(@rackspace_container, swift_path)
 
-      tmp = Tempfile.new("rackspace-cloud-files-")
+      tmp = Tempfile.new('rackspace-cloud-files-')
       begin
-        if @store_as == "gzip"
+        if @store_as == 'gzip'
           w = Zlib::GzipWriter.new(tmp)
           chunk.write_to(w)
           w.close

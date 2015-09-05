@@ -14,8 +14,8 @@ module Fluent
       require 'open3'
     end
 
-    config_param :path, :string, :default => ''
-    config_param :time_format, :string, :default => nil
+    config_param :path, :string, default: ''
+    config_param :time_format, :string, default: nil
 
     include SetTagKeyMixin
     config_set_default :include_tag_key, false
@@ -23,18 +23,18 @@ module Fluent
     include SetTimeKeyMixin
     config_set_default :include_time_key, false
 
-    config_param :rackspace_auth_url, :string, :default => 'https://identity.api.rackspacecloud.com/v2.0'
+    config_param :rackspace_auth_url, :string, default: 'https://identity.api.rackspacecloud.com/v2.0'
     config_param :rackspace_username, :string
     config_param :rackspace_api_key, :string
     config_param :rackspace_container, :string
     config_param :rackspace_region, :string
 
-    config_param :object_key_format, :string, :default => "%{path}%{time_slice}_%{index}.%{file_extension}"
-    config_param :store_as, :string, :default => 'gzip'
-    config_param :auto_create_container, :bool, :default => true
-    config_param :check_apikey_on_start, :bool, :default => true
-    config_param :proxy_uri, :string, :default => nil
-    config_param :ssl_verify, :bool, :default => true
+    config_param :object_key_format, :string, default: "%{path}%{time_slice}_%{index}.%{file_extension}"
+    config_param :store_as, :string, default: 'gzip'
+    config_param :auto_create_container, :bool, default: true
+    config_param :check_apikey_on_start, :bool, default: true
+    config_param :proxy_uri, :string, default: nil
+    config_param :ssl_verify, :bool, default: true
 
     # attr_reader :container
 
@@ -77,11 +77,11 @@ module Fluent
 
       Excon.defaults[:ssl_verify_peer] = @ssl_verify
 
-      @storage = Fog::Storage.new :provider => 'Rackspace',
-                        :rackspace_auth_url => @rackspace_auth_url,
-                        :rackspace_username => @rackspace_username,
-                        :rackspace_api_key => @rackspace_api_key,
-                        :rackspace_region => @rackspace_region
+      @storage = Fog::Storage.new provider: 'Rackspace',
+                        rackspace_auth_url: @rackspace_auth_url,
+                        rackspace_username: @rackspace_username,
+                        rackspace_api_key: @rackspace_api_key,
+                        rackspace_region: @rackspace_region
 
       check_container
     end
@@ -134,7 +134,7 @@ module Fluent
           tmp.close
         end
         File.open(tmp.path) do |file|
-          @storage.put_object(@rackspace_container, swift_path, file, {:content_type => @mime_type})
+          @storage.put_object(@rackspace_container, swift_path, file, {content_type: @mime_type})
         end
         $log.info "Put Log to Rackspace Cloud Files. container=#{@rackspace_container} object=#{swift_path}"
       ensure

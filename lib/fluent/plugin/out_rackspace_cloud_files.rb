@@ -80,10 +80,10 @@ module Fluent
       Excon.defaults[:ssl_verify_peer] = @ssl_verify
 
       @storage = Fog::Storage.new provider: 'Rackspace',
-                        rackspace_auth_url: @rackspace_auth_url,
-                        rackspace_username: @rackspace_username,
-                        rackspace_api_key: @rackspace_api_key,
-                        rackspace_region: @rackspace_region
+                                  rackspace_auth_url: @rackspace_auth_url,
+                                  rackspace_username: @rackspace_username,
+                                  rackspace_api_key: @rackspace_api_key,
+                                  rackspace_region: @rackspace_region
 
       check_container
     end
@@ -138,7 +138,7 @@ module Fluent
         end
         File.open(tmp.path) do |file|
           @storage.put_object(@rackspace_container, swift_path, file,
-                              {content_type: @mime_type})
+                              content_type: @mime_type)
         end
         $log.info 'Put Log to Rackspace Cloud Files. container='\
                   "#{@rackspace_container} object=#{swift_path}"

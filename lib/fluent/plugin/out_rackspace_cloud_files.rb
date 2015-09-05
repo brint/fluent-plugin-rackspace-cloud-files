@@ -29,7 +29,7 @@ module Fluent #:nodoc: all
     config_param :rackspace_region, :string
 
     config_param :object_key_format, :string,
-                 default: "%{path}%{time_slice}_%{index}.%{file_extension}"
+                 default: '%{path}%{time_slice}_%{index}.%{file_extension}'
     config_param :store_as, :string, default: 'gzip'
     config_param :auto_create_container, :bool, default: true
     config_param :check_apikey_on_start, :bool, default: true

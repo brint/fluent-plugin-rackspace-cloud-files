@@ -48,20 +48,28 @@ module Fluent #:nodoc: all
     def configure(conf)
       super
 
-      @ext, @mime_type = case @store_as
-                         when 'gzip' then ['gz', 'application/x-gzip']
-                         when 'json' then ['json', 'application/json']
-                         else ['txt', 'text/plain']
-                         end
+      @ext, @mime_type = storage_method
 
       @timef = TimeFormatter.new(@time_format, @localtime)
 
+      @path_slicer = time_slicer
+    end
+
+    def storage_method
+      case @store_as
+      when 'gzip' then return ['gz', 'application/x-gzip']
+      when 'json' then return ['json', 'application/json']
+      else return ['txt', 'text/plain']
+      end
+    end
+
+    def time_slicer
       if @localtime
-        @path_slicer = proc do |path|
+        return proc do |path|
           Time.now.strftime(path)
         end
       else
-        @path_slicer = proc do |path|
+        return proc do |path|
           Time.now.utc.strftime(path)
         end
       end

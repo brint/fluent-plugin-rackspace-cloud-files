@@ -26,5 +26,5 @@ Gem::Specification.new do |gem|
                              '>= 0.3.0'
   gem.add_development_dependency 'rake', '~> 10.1', '>= 10.1.0'
   gem.add_development_dependency 'flexmock', '~> 1.2', '>= 1.2.0'
-  gem.add_development_dependency 'rubocop', '~> 0.33.0', '>= 0.33.0'
+  gem.add_development_dependency 'rubocop', '~> 0.33', '>= 0.33'
 end

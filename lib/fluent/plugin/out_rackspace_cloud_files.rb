@@ -54,9 +54,7 @@ module Fluent #:nodoc: all
 
     def start
       super
-
       Excon.defaults[:ssl_verify_peer] = @ssl_verify
-
       @storage = Fog::Storage.new provider: 'Rackspace',
                                   rackspace_auth_url: @rackspace_auth_url,
                                   rackspace_username: @rackspace_username,
@@ -72,7 +70,6 @@ module Fluent #:nodoc: all
       # copied from each mixin because current TimeSlicedOutput can't support
       # mixins.
       record[@tag_key] = tag if @include_tag_key
-
       record[@time_key] = time_str if @include_time_key
 
       if @format_json
@@ -104,32 +101,12 @@ module Fluent #:nodoc: all
         i += 1
         previous_path = swift_path
       end while check_object_exists(@rackspace_container, swift_path)
-
-      tmp = Tempfile.new('rackspace-cloud-files-')
-      begin
-        if @store_as == 'gzip'
-          w = Zlib::GzipWriter.new(tmp)
-          chunk.write_to(w)
-          w.close
-        else
-          chunk.write_to(tmp)
-          tmp.close
-        end
-        File.open(tmp.path) do |file|
-          @storage.put_object(@rackspace_container, swift_path, file,
-                              content_type: @mime_type)
-        end
-        log.info 'Put Log to Rackspace Cloud Files. container='\
-                  "#{@rackspace_container} object=#{swift_path}"
-      ensure
-        tmp.close(true) rescue nil
-        w.close rescue nil
-        w.unlink rescue nil
-      end
+      write_temp_file(chunk, swift_path)
     end
 
     private
 
+    # Configure methods
     def storage_method
       case @store_as
       when 'gzip' then return ['gz', 'application/x-gzip']
@@ -150,6 +127,7 @@ module Fluent #:nodoc: all
       end
     end
 
+    # Start methods
     def check_container
       @storage.get_container(@rackspace_container)
     rescue Fog::Storage::Rackspace::NotFound
@@ -163,11 +141,44 @@ module Fluent #:nodoc: all
       end
     end
 
+    # Write methods
     def check_object_exists(container, object)
       @storage.head_object(container, object)
       return true
     rescue Fog::Storage::Rackspace::NotFound
       return false
+    end
+
+    def write_temp_file(chunk, swift_path)
+      tmp = Tempfile.new('rackspace-cloud-files-')
+      begin
+        if @store_as == 'gzip'
+          write_gzip_temp_file(chunk, tmp)
+        else
+          chunk.write_to(tmp)
+          tmp.close
+        end
+        write_temp_file_to_cloud_files(tmp, swift_path)
+      ensure
+        tmp.close(true) rescue nil
+        w.close rescue nil
+        w.unlink rescue nil
+      end
+    end
+
+    def write_gzip_temp_file(chunk, tmp)
+      w = Zlib::GzipWriter.new(tmp)
+      chunk.write_to(w)
+      w.close
+    end
+
+    def write_temp_file_to_cloud_files(tmp, swift_path)
+      File.open(tmp.path) do |file|
+        @storage.put_object(@rackspace_container, swift_path, file,
+                            content_type: @mime_type)
+      end
+      log.info 'Put Log to Rackspace Cloud Files. container='\
+                "#{@rackspace_container} object=#{swift_path}"
     end
   end
 end

@@ -153,16 +153,15 @@ module Fluent #:nodoc: all
       tmp = Tempfile.new('rackspace-cloud-files-')
       begin
         if @store_as == 'gzip'
-          write_gzip_temp_file(chunk, tmp)
+          w = write_gzip_temp_file(chunk, tmp)
         else
           chunk.write_to(tmp)
           tmp.close
         end
         write_temp_file_to_cloud_files(tmp, swift_path)
       ensure
-        tmp.close(true) rescue nil
-        w.close rescue nil
-        w.unlink rescue nil
+        tmp.close(true)
+        w.close(true)
       end
     end
 

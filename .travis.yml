@@ -4,5 +4,5 @@ rvm:
   - 2.1.5  # Version of Ruby that ships with fluentd
   - 2.2.3
 script:
-  # - bundle exec rake style  # Not currently passing style checks
+  - bundle exec rake style
   - bundle exec rake build

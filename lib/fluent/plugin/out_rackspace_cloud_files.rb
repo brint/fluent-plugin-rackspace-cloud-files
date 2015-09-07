@@ -47,32 +47,9 @@ module Fluent #:nodoc: all
 
     def configure(conf)
       super
-
       @ext, @mime_type = storage_method
-
       @timef = TimeFormatter.new(@time_format, @localtime)
-
       @path_slicer = time_slicer
-    end
-
-    def storage_method
-      case @store_as
-      when 'gzip' then return ['gz', 'application/x-gzip']
-      when 'json' then return ['json', 'application/json']
-      else return ['txt', 'text/plain']
-      end
-    end
-
-    def time_slicer
-      if @localtime
-        return proc do |path|
-          Time.now.strftime(path)
-        end
-      else
-        return proc do |path|
-          Time.now.utc.strftime(path)
-        end
-      end
     end
 
     def start
@@ -152,6 +129,26 @@ module Fluent #:nodoc: all
     end
 
     private
+
+    def storage_method
+      case @store_as
+      when 'gzip' then return ['gz', 'application/x-gzip']
+      when 'json' then return ['json', 'application/json']
+      else return ['txt', 'text/plain']
+      end
+    end
+
+    def time_slicer
+      if @localtime
+        return proc do |path|
+          Time.now.strftime(path)
+        end
+      else
+        return proc do |path|
+          Time.now.utc.strftime(path)
+        end
+      end
+    end
 
     def check_container
       @storage.get_container(@rackspace_container)
